@@ -19,11 +19,30 @@ else{
         mysqli_stmt_bind_param($stmt, "s", $pictures_name);
 
         if (mysqli_stmt_execute($stmt)){
-            $path = "uploads/" . basename($pictures_name);
-            if (unlink ($path)){
-                echo "Removed picture " . $path . "<br>";
-                echo "Removed picture " . $pictures_name . ", continue with  " . "<a href=''>" . "deleting pictures" . "</a>";
-                unset ($path);
+            $pictures_name = $_POST['pictures_name'] ?? '';
+
+            // Validate characters
+            if (!preg_match('/^[a-zA-Z0-9._-]+$/', $pictures_name)) {
+                die("Invalid filename.");
+            }
+
+            $uploadsDir = realpath("uploads");
+            $filePath   = realpath($uploadsDir . DIRECTORY_SEPARATOR . $pictures_name);
+
+            if ($filePath === false || strpos($filePath, $uploadsDir) !== 0) {
+                die("Invalid file path.");
+            }
+
+            if (file_exists($filePath)) {
+                if (unlink($filePath)) {
+                    echo "Removed picture: " . htmlspecialchars($filePath) . "<br>";
+                    echo "Removed picture " . htmlspecialchars($pictures_name) . ", continue with  " . "<a href=''>" . "deleting pictures" . "</a>";
+                    unset ($path);
+                } else {
+                    echo "Error deleting file.";
+                }
+            } else {
+                echo "File not found.";
             }
         }
     }
