@@ -13,25 +13,32 @@ if (!isset ($_SESSION ['username'])){
 }
 else{
     if (isset ($_POST['pictures_name'])){
-        $pictures_name = $_POST['pictures_name'];
+        // Fetch the real filename from the DB so user input cannot be abused
+        $stmt2 = mysqli_prepare($connection, 
+            "SELECT pictures_name FROM pictures WHERE pictures_name = ? AND id_users = ?");
+        mysqli_stmt_bind_param($stmt2, "si", $_POST['pictures_name'], $_SESSION['user_id']);
+        mysqli_stmt_execute($stmt2);
+        mysqli_stmt_bind_result($stmt2, $db_filename);
+        mysqli_stmt_fetch($stmt2);
+        mysqli_stmt_close($stmt2);
+
+        if (!$db_filename) {
+            die("Invalid picture selected.");
+        }
+
+        $pictures_name = $db_filename;
         
-        $stmt = mysqli_prepare($connection, "DELETE FROM pictures WHERE pictures_name = ?");
-        mysqli_stmt_bind_param($stmt, "s", $pictures_name);
+        // Validate characters
+        if (!preg_match('/^[a-zA-Z0-9._-]+$/', $pictures_name)) {
+            die("Invalid filename.");
+        }
 
-        if (mysqli_stmt_execute($stmt)){
-            $pictures_name = $_POST['pictures_name'] ?? '';
+        $uploadsDir = realpath("uploads");
+        $filePath   = realpath($uploadsDir . DIRECTORY_SEPARATOR . $pictures_name);
 
-            // Validate characters
-            if (!preg_match('/^[a-zA-Z0-9._-]+$/', $pictures_name)) {
-                die("Invalid filename.");
-            }
-
-            $uploadsDir = realpath("uploads");
-            $filePath   = realpath($uploadsDir . DIRECTORY_SEPARATOR . $pictures_name);
-
-            if ($filePath === false || strpos($filePath, $uploadsDir) !== 0) {
-                die("Invalid file path.");
-	    }
+        if ($filePath === false || strpos($filePath, $uploadsDir) !== 0) {
+            die("Invalid file path.");
+        }
 
 	    if (preg_match('/^[a-zA-Z0-9._-]+$/', $pictures_name, $matches)) {
 	    	$safe_name = $matches[0];
