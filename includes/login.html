@@ -6,6 +6,7 @@
             <div class="card bg-light mb-3">
                 <div class="card-body">
             <form action="check_login.php" method="POST">
+                {% csrf_token %}
                 Username:<br>
                 <input type="text" name="username"><br>
                 Password:<br>
