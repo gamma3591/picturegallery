@@ -33,7 +33,8 @@ else{
                 die("Invalid file path.");
 	    }
 
-	    $path = "uploads/" . $pictures_name;
+	    $safe_name = basename($_POST['pictures_name']);
+	    $path = "uploads/" . $safe_name;
 
             if (file_exists($path)) {
                 if (unlink($path)) {
