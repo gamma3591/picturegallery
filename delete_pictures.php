@@ -18,10 +18,6 @@ else{
     $stmt2 = mysqli_prepare($connection, 
         "SELECT pictures_name FROM pictures WHERE pictures_name = ? AND id_users = ?");
     mysqli_stmt_bind_param($stmt2, "si", $_POST['pictures_name'], $_SESSION['user_id']);
-    mysqli_stmt_execute($stmt2);
-    mysqli_stmt_bind_result($stmt2, $db_filename);
-    mysqli_stmt_fetch($stmt2);
-    mysqli_stmt_close($stmt2);
 
     if (!$db_filename) {
         die("Invalid picture selected.");
@@ -42,17 +38,29 @@ else{
         die("Invalid file path.");
     }
 
-    // Now delete using the safe realpath
-    if (file_exists($filePath)) {
-        if (unlink($filePath)) {
-            echo "Removed picture: " . htmlspecialchars($pictures_name) . "<br>";
-            echo "Removed picture " . htmlspecialchars($pictures_name) . ", continue with <a href=''>deleting pictures</a>";
+    $res = mysqli_stmt_get_result($stmt2);
+            
+    if ($row = mysqli_fetch_assoc($res)) {
+        $safe_filename = $row['pictures_name']; 
+        $path = "uploads/" . $safe_filename;
+
+        // Now delete using the safe realpath
+        if (file_exists($path)) {
+            if (unlink($path)) {
+                echo "Removed picture: " . htmlspecialchars($pictures_name) . "<br>";
+                echo "Removed picture " . htmlspecialchars($pictures_name) . ", continue with <a href=''>deleting pictures</a>";
+            } else {
+                echo "Error deleting file.";
+            }
         } else {
-            echo "Error deleting file.";
+            echo "File not found.";
         }
-    } else {
-        echo "File not found.";
     }
+
+    mysqli_stmt_execute($stmt2);
+    mysqli_stmt_bind_result($stmt2, $db_filename);
+    mysqli_stmt_fetch($stmt2);
+    mysqli_stmt_close($stmt2);
 }
 
     
