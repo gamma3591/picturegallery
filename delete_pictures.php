@@ -33,20 +33,24 @@ else{
                 die("Invalid file path.");
 	    }
 
-	    $safe_name = basename($_POST['pictures_name']);
-	    $path = "uploads/" . $safe_name;
+	    if (preg_match('/^[a-zA-Z0-9._-]+$/', $pictures_name, $matches)) {
+	    	$safe_name = $matches[0];
+	    	$path = "uploads/" . $safe_name;
 
-            if (file_exists($path)) {
-                if (unlink($path)) {
-                    echo "Removed picture: " . htmlspecialchars($path) . "<br>";
-                    echo "Removed picture " . htmlspecialchars($pictures_name) . ", continue with  " . "<a href=''>" . "deleting pictures" . "</a>";
-                    unset ($path);
-                } else {
-                    echo "Error deleting file.";
-                }
-            } else {
-                echo "File not found.";
-            }
+            	if (file_exists($path)) {
+                	if (unlink($path)) {
+                    		echo "Removed picture: " . htmlspecialchars($path) . "<br>";
+                    		echo "Removed picture " . htmlspecialchars($pictures_name) . ", continue with  " . "<a href=''>" . "deleting pictures" . "</a>";
+                    		unset ($path);
+                	} else {
+                    		echo "Error deleting file.";
+                	}
+            	} else {
+                	echo "File not found.";
+            	}
+	     } else {
+	     	echo "Invalid filename format.";
+	     }
         }
     }
     
