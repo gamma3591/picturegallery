@@ -31,11 +31,13 @@ else{
 
             if ($filePath === false || strpos($filePath, $uploadsDir) !== 0) {
                 die("Invalid file path.");
-            }
+	    }
 
-            if (file_exists($filePath)) {
-                if (unlink($filePath)) {
-                    echo "Removed picture: " . htmlspecialchars($filePath) . "<br>";
+	    $path = "uploads/" . $pictures_name;
+
+            if (file_exists($path)) {
+                if (unlink($path)) {
+                    echo "Removed picture: " . htmlspecialchars($path) . "<br>";
                     echo "Removed picture " . htmlspecialchars($pictures_name) . ", continue with  " . "<a href=''>" . "deleting pictures" . "</a>";
                     unset ($path);
                 } else {
